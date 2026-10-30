@@ -426,6 +426,44 @@ const WORD_CARDS_DB = {
         example: '예) "기꺼이 함께하자! 지금 바로 내려갈게."'
       }
     ]
+  },
+  loan_general: {
+    id: 'loan_general',
+    category: '외래어 · 외국어 표현',
+    beforeLabel: '외래어 표현',
+    cards: [
+      {
+        word: '신나는 놀이',
+        pos: '명사구 · 고유어',
+        meaning: '게임·이벤트·파티 등 외래어 대신 쓰는 즐거운 우리말',
+        example: '예) "점심 먹고 다 함께 신나는 놀이 한판 할래?"'
+      },
+      {
+        word: '고운 우리말',
+        pos: '명사구 · 고유어',
+        meaning: '습관적인 외국어·외래어 대신 다듬어 쓰는 표현',
+        example: '예) "우리끼리 모둠을 짜서 즐겁게 해 보자!"'
+      }
+    ]
+  },
+  sino_general: {
+    id: 'sino_general',
+    category: '일상 한자어 표현',
+    beforeLabel: '습관적 한자어',
+    cards: [
+      {
+        word: '몸풀기 나들이',
+        pos: '명사구 · 고유어',
+        meaning: '운동·이동·활동 등 한자어를 다듬은 순우리말 표현',
+        example: '예) "밥 먹고 운동장으로 몸풀기 나들이 가자!"'
+      },
+      {
+        word: '마음 모아',
+        pos: '부사구 · 고유어',
+        meaning: '집중·노력·준비 등 한자어 대신 뜻을 합쳐 무언가를 할 때',
+        example: '예) "다 같이 마음 모아 차근차근 해 보자!"'
+      }
+    ]
   }
 };
 
@@ -639,9 +677,9 @@ const CUSTOM_KEYWORD_RULES = [
     cardId: 'bad_curse',
     type: 'curse'
   },
-  // 2. 유행어 · 신조어 · 밈 (야르렁, 야르 등 포함)
+  // 2. 유행어 · 신조어 · 밈 (야르렁, 야르, 스껄 등 및 유행어 패턴)
   {
-    regex: /야르렁|야르|깔끼|폼미쳤다|폼미쳤|오운완|중꺾마|알잘딱깔센|알잘딱|킹받네|킹받|억까|억빠|뇌절|잼민이|가보자고|어쩔티비|저쩔티비|어쩔|크크루삥뽕|스불재|점메추|저메추|갑분싸|TMI|갓생|럭키비키|원영적|마라탕후루|탕후루|사바사|케바케|번달번줌|추구미|느좋|감다살|감다뒤|제곧내|최애|차애|덕질|현타|할많하않|꾸안꾸|복세편살|별다줄|노잼|꿀잼|레게노|무야호|호로록|뿌슝빠슝|머선129/gi,
+    regex: /야르렁|야르|깔끼|스껄|폼미쳤다|폼미쳤|오운완|중꺾마|알잘딱깔센|알잘딱|킹받네|킹받|억까|억빠|뇌절|잼민이|잼민|가보자고|어쩔티비|저쩔티비|어쩔|안물안궁|크크루삥뽕|스불재|점메추|저메추|갑분싸|TMI|갓생|럭키비키|원영적|마라탕후루|탕후루|사바사|케바케|번달번줌|추구미|느좋|감다살|감다뒤|제곧내|최애|차애|덕질|입덕|탈덕|현타|할많하않|꾸안꾸|복세편살|별다줄|노잼|꿀잼|레게노|무야호|호로록|뿌슝빠슝|머선129|알빠노|알빠임|누칼협|기모띠|앙기모띠|선넘네|급발진|억텐|찐텐|텐션|힐링|플렉스|하드캐리|캐리|트롤|뉴비|고인물|티어|너프|버프|가성비|갓성비|주작|어그로|빌런|흑역사|인싸|아싸|급식체|뇌피셜|오피셜|팩폭|팩트|손절|설참|반모|당모치|[가-힣]*르렁|[가-힣]*삥뽕|[가-힣]*모띠|[뛣뛟쀍꺌뷁쀼쮸]+/gi,
     cardId: 'meme_slang',
     type: 'meme'
   },
@@ -660,23 +698,23 @@ const CUSTOM_KEYWORD_RULES = [
   { regex: /엄청\s*많아|엄청|상당히|너무|많이/g, cardId: 'very_much', type: 'sino' },
   { regex: /즉시|신속히|바로|빨리/g, cardId: 'immediately_rightaway', type: 'sino' },
   { regex: /오케이|오키|찬성|콜|ㄱㄱ|ㅇㅋ|ㅇㅈ|인정|화이팅|파이팅/gi, cardId: 'okay_agree', type: 'loan' },
-  // 4. 초성체 · 통신 줄임말 · 로마자 외래 표기
+  // 4. 일반 외래어 · 일상 한자어
   {
-    regex: /ㅇㅇ|ㄴㄴ|ㄷㄷ|ㅂㅂ|ㅅㄱ|ㅎㅇ|ㄱㅅ|ㅈㅅ|[ㅋㅎㅠㅜ]{2,}|[a-zA-Z]{2,}/g,
+    regex: /게임|파티|테스트|커피|피자|주스|아이스크림|초콜릿|케이크|마트|버스|택시|스마트폰|유튜브|인스타|카톡|메시지|메뉴|포인트|아이템|레벨|랭킹|클리어|미션|보너스|이벤트|스타일|디자인|컬러|사이즈|패스|스킵|타임|찬스|힌트|팀|그룹|멤버|리더|센터|에너지|컨디션|밸런스|센스|타이밍/g,
+    cardId: 'loan_general',
+    type: 'loan'
+  },
+  {
+    regex: /운동장|운동|체육|연습|경기|대회|식사|급식|학교|수업|공부|시험|평가|숙제|과제|준비|시작|완료|성공|실패|노력|투표|선택|결정|반대|의견|기분|감정|행복|감동|약속|장소|이동|출발|도착|도서관|교실|복도/g,
+    cardId: 'sino_general',
+    type: 'sino'
+  },
+  // 5. 초성체 · 자모 줄임말 · 영문 표기
+  {
+    regex: /[ㄱ-ㅎㅏ-ㅣ]+|[a-zA-Z]+/g,
     cardId: 'chat_abbrev',
     type: 'loan'
   }
-];
-
-// 순우리말(고유어) 인정 어휘 목록
-const PURE_KOREAN_WHITELIST = [
-  '으뜸', '첫손가락', '참으로', '더할 나위 없이', '주전부리', '입가심거리',
-  '글피', '사흘', '물리셨어', '물리다', '늦추셨어', '늦추다', '짬', '겨를',
-  '기어이', '두말없이', '요새', '접때', '귀띔', '일러', '시름', '애간장',
-  '이만저만', '무척', '온갖', '나름대로', '단박에', '곧장', '좋아', '반갑네',
-  '얼씨구', '신난다', '더없이', '아찔해라', '쓰이네', '놀랍네', '방긋', '기꺼이',
-  '밥차림', '함께', '같이', '갈래', '가자', '먹자', '그러자', '맞아', '그래',
-  '고마워', '미안해', '부지런히', '곱네', '멋지네', '빛깔', '솜씨', '마음씨', '나들이'
 ];
 
 // --- Application State ---
@@ -1040,23 +1078,19 @@ function analyzeCustomReply(rawText, turnObj) {
     });
   });
 
-  // Check if user genuinely used pure Korean words from the whitelist
-  let matchedNative = 0;
-  PURE_KOREAN_WHITELIST.forEach((pureWord) => {
-    if (rawText.includes(pureWord)) {
-      matchedNative++;
-    }
-  });
+  // Count clean native Korean word tokens remaining outside {{...}} tags
+  const plainRemaining = processedTemplate
+    .replace(/\{\{[a-z_]+:[^}]+\}\}/g, ' ')
+    .replace(/[^가-힣\s]/g, ' ')
+    .trim();
 
-  // Fallback: if user typed an unknown buzzword/slang/expression not in the pure Korean whitelist
+  const nativeTokens = plainRemaining
+    ? plainRemaining.split(/\s+/).filter((w) => w.length >= 1)
+    : [];
+
+  let matchedNative = nativeTokens.length;
   if (!matchedAny && matchedNative === 0) {
-    const cleaned = processedTemplate.replace(/[?!.~,\s]/g, '');
-    if (cleaned.length > 0) {
-      processedTemplate = `{{meme_slang:${processedTemplate}}}`;
-      matchedLoan += 1;
-      matchedMeme += 1;
-      matchedAny = true;
-    }
+    matchedNative = 1;
   }
 
   const totalShadow = matchedLoan + matchedSino;
