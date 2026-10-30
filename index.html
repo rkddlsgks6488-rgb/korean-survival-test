@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>내 카톡방의 그림자: 고유어 생존율 테스트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient Background Aurora (Desaturates dynamically with game state) -->
+  <div id="ambient-bg" class="ambient-bg">
+    <div class="aurora-blob blob-1"></div>
+    <div class="aurora-blob blob-2"></div>
+    <div class="aurora-blob blob-3"></div>
+    <div class="aurora-blob blob-4"></div>
+    <div class="noise-overlay"></div>
+  </div>
+
+  <!-- Fullscreen Particle Canvas for Replay Mode Restorations -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- Main App Wrapper -->
+  <div class="app-layout">
+    <!-- Left / Side Info Panel (Desktop helper & Live Status) -->
+    <aside class="side-panel">
+      <div class="brand-badge">국어 생활 성찰 인터랙티브 게임</div>
+      <h1 class="game-title">내 카톡방의 그림자<br /><span class="highlight-text">‘고유어 생존율 테스트’</span></h1>
+      <p class="game-desc">
+        평소 친구들과 나누는 메신저 대화 속에서 우리는 얼마나 많은 <strong>우리말(고유어)</strong>을 쓰고 있을까요?
+        외래어·한자어·줄임말이 늘어날수록 대화방의 색채가 서서히 사라집니다.
+      </p>
+
+      <!-- Live Color & Survival Meter Card -->
+      <div class="status-card glass-card">
+        <div class="status-header">
+          <span class="status-label">현재 대화방 색채 농도</span>
+          <span id="saturation-value" class="status-number">100%</span>
+        </div>
+        <div class="meter-track">
+          <div id="saturation-bar" class="meter-fill" style="width: 100%;"></div>
+        </div>
+        <div class="status-sub" id="saturation-status-text">
+          ✨ 아직 대화방에 고운 빛깔이 살아 있어요.
+        </div>
+
+        <div class="stats-mini-grid">
+          <div class="stat-box">
+            <span class="stat-box-label">진행 대화</span>
+            <strong id="turn-counter">0 / 6 턴</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-box-label">감지된 외래·한자·줄임말</span>
+            <strong id="shadow-word-counter">0개</strong>
+          </div>
+          <div class="stat-box">
+            <span class="stat-box-label">살아남은 고유어</span>
+            <strong id="native-word-counter">0개</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase Indicator Stepper -->
+      <div class="phase-stepper glass-card">
+        <div class="step-item active" id="step-1">
+          <div class="step-dot">1</div>
+          <div class="step-info">
+            <strong>인식 단계: 일상 메신저 대화</strong>
+            <span>평소 말투대로 선택하거나 직접 답장을 입력하세요</span>
+          </div>
+        </div>
+        <div class="step-item" id="step-2">
+          <div class="step-dot">2</div>
+          <div class="step-info">
+            <strong>진단 단계: 고유어 생존율 영수증</strong>
+            <span>나의 언어 습관과 잃어버린 색채를 확인합니다</span>
+          </div>
+        </div>
+        <div class="step-item" id="step-3">
+          <div class="step-dot">3</div>
+          <div class="step-info">
+            <strong>전환 단계: 시간 되돌리기 (리플레이)</strong>
+            <span>어두워진 말풍선을 터치해 아름다운 고유어로 되살리세요</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dictionary / Quick Guide Toggle -->
+      <div class="side-footer">
+        <button id="btn-sound-toggle" class="util-btn" type="button" title="효과음 켜기/끄기">
+          🔊 효과음 ON
+        </button>
+        <button id="btn-restart-side" class="util-btn" type="button">
+          🔄 처음부터 다시하기
+        </button>
+      </div>
+      <div class="credit-badge-side">출처: <strong>하모쌤</strong></div>
+    </aside>
+
+    <!-- Center: iOS Glassmorphism Messenger Phone Frame -->
+    <main class="phone-stage">
+      <div id="phone-frame" class="phone-frame">
+        <!-- Desaturation Filter Layer wrapping the visual phone interior -->
+        <div id="phone-color-layer" class="phone-color-layer">
+          <!-- Dynamic Wallpaper inside the Phone -->
+          <div class="phone-wallpaper">
+            <div class="wp-orb wp-orb-1"></div>
+            <div class="wp-orb wp-orb-2"></div>
+            <div class="wp-orb wp-orb-3"></div>
+          </div>
+
+          <!-- iOS Status Bar -->
+          <header class="ios-status-bar">
+            <div class="ios-time" id="ios-clock">12:30</div>
+            <div class="ios-dynamic-island">
+              <span class="island-dot" id="island-indicator"></span>
+              <span class="island-text" id="island-status">고유어 감지 중</span>
+            </div>
+            <div class="ios-icons">
+              <span class="signal-bars"><i></i><i></i><i></i><i></i></span>
+              <span class="wifi-icon">5G</span>
+              <span class="battery-icon"><em></em></span>
+            </div>
+          </header>
+
+          <!-- Messenger Navigation Header -->
+          <div class="chat-nav-header glass-header">
+            <button class="nav-back-btn" id="btn-header-reset" title="처음으로">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span class="unread-pill">3</span>
+            </button>
+            <div class="chat-room-profile">
+              <div class="avatar-stack">
+                <div class="avatar av-1">민</div>
+                <div class="avatar av-2">서</div>
+                <div class="avatar av-3">지</div>
+              </div>
+              <div class="room-titles">
+                <h2 class="room-name">6학년 3반 단짝톡 (4)</h2>
+                <p class="room-subtitle" id="room-subtitle">민준, 서연, 지호, 나 · 색채 농도 100%</p>
+              </div>
+            </div>
+            <div class="nav-actions">
+              <div class="mode-pill" id="mode-badge">일상 대화</div>
+            </div>
+          </div>
+
+          <!-- Replay Mode Instruction Banner (Hidden until Replay Mode) -->
+          <div id="replay-banner" class="replay-banner hidden">
+            <div class="replay-banner-left">
+              <span class="replay-icon">⏪</span>
+              <div>
+                <strong>시간 되돌리기 모드 진행 중</strong>
+                <p>빛을 잃은 <span class="badge-highlight">점선 말풍선 단어</span>를 터치해 고유어로 바꿔 끼우세요!</p>
+              </div>
+            </div>
+            <div class="replay-progress-pill" id="replay-progress-text">0 / 0 복구</div>
+          </div>
+
+          <!-- Chat Messages Scroll Container -->
+          <div id="chat-viewport" class="chat-viewport">
+            <div class="chat-date-divider">
+              <span>2026년 10월 30일 금요일</span>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+              <!-- Messages injected dynamically -->
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="typing-row hidden">
+              <div class="friend-avatar" id="typing-avatar">민</div>
+              <div class="typing-bubble">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Interaction Area: Choices + Custom Input -->
+          <footer id="interaction-dock" class="interaction-dock glass-dock">
+            <!-- Choice Drawer -->
+            <div id="choice-drawer" class="choice-drawer">
+              <div class="choice-drawer-header">
+                <span class="choice-prompt-label">💬 평소 내 말투에 가장 가까운 답장을 고르거나 직접 입력해 보세요</span>
+              </div>
+              <div id="choice-list" class="choice-list">
+                <!-- Choice buttons injected here -->
+              </div>
+            </div>
+
+            <!-- iOS Style Direct Text Input Bar -->
+            <form id="custom-input-form" class="ios-input-bar" autocomplete="off">
+              <button type="button" id="btn-toggle-choices" class="plus-btn" title="선택지 열기/닫기">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+              <div class="input-pill-wrapper">
+                <input
+                  type="text"
+                  id="custom-message-input"
+                  placeholder="직접 답장 입력하기 (예: 완전 레전드네 매점 ㄱㄱ)"
+                  maxlength="80"
+                />
+                <button type="submit" id="btn-send-custom" class="send-up-btn" title="전송">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                </button>
+              </div>
+            </form>
+          </footer>
+
+          <!-- Replay Mode Bottom Dock (Shown during Replay Mode) -->
+          <footer id="replay-dock" class="replay-dock glass-dock hidden">
+            <div class="replay-dock-content">
+              <div class="replay-meter-row">
+                <span>🌈 고유어 색채 복구율</span>
+                <strong id="replay-percent-label">12% → 100% 목표</strong>
+              </div>
+              <div class="replay-meter-bar">
+                <div id="replay-meter-fill" class="replay-meter-fill" style="width: 12%;"></div>
+              </div>
+              <div class="replay-dock-actions">
+                <button id="btn-hint-next" class="secondary-pill-btn" type="button">
+                  🔍 바꿀 단어 찾기
+                </button>
+                <button id="btn-finish-replay" class="primary-pill-btn hidden" type="button">
+                  🎉 복구 완료 결과 보기
+                </button>
+              </div>
+            </div>
+          </footer>
+        </div>
+
+        <!-- Overlay 1: Intro Start Overlay inside Phone -->
+        <div id="intro-overlay" class="phone-overlay active">
+          <div class="intro-card glass-modal">
+            <div class="intro-icon-ring">
+              <span class="intro-emoji">💬</span>
+              <span class="intro-shadow-badge">흑백 주의</span>
+            </div>
+            <p class="intro-eyebrow">도입·진단형 국어 인터랙티브 실험</p>
+            <h2 class="intro-title">내 카톡방의 그림자<br /><span>고유어 생존율 테스트</span></h2>
+            <p class="intro-body">
+              점심시간 6학년 3반 단짝 단톡방에 알림이 울렸습니다.<br />
+              평소 친구들과 대화하듯 편하게 답장해 보세요.<br />
+              과연 내 대화방의 색깔은 끝까지 살아남을 수 있을까요?
+            </p>
+            <div class="intro-features">
+              <div class="feature-chip">📱 iOS 글래스모피즘 메신저</div>
+              <div class="feature-chip">🎨 실시간 채도 변화</div>
+              <div class="feature-chip">🧾 생존율 영수증 &amp; 리플레이</div>
+            </div>
+            <button id="btn-start-game" class="cta-glow-btn" type="button">
+              단톡방 입장하기
+            </button>
+          </div>
+        </div>
+
+        <!-- Overlay 2: Diagnostic Receipt Modal (Phase 2) -->
+        <div id="receipt-overlay" class="phone-overlay">
+          <div class="receipt-scroll-wrap">
+            <div class="receipt-paper" id="receipt-paper">
+              <div class="receipt-zigzag-top"></div>
+              <div class="receipt-header">
+                <span class="receipt-store">KOREAN LANGUAGE LAB · 언어 습관 진단소</span>
+                <h3 class="receipt-title">고유어 생존율 진단 영수증</h3>
+                <p class="receipt-meta" id="receipt-timestamp">발행일시: 2026.10.30 12:35:00</p>
+              </div>
+
+              <div class="receipt-hero-score">
+                <span class="score-caption">나의 고유어 생존율</span>
+                <div class="score-big-row">
+                  <strong id="receipt-survival-rate" class="score-big">12%</strong>
+                </div>
+                <span id="receipt-grade-badge" class="grade-pill">심각한 흑백 그림자 단계</span>
+              </div>
+
+              <div class="receipt-divider">----------------------------------------</div>
+
+              <div class="receipt-rows">
+                <div class="receipt-row">
+                  <span>총 대화 턴수</span>
+                  <strong id="rc-turns">6 턴</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>외래어 · 줄임말 · 신조어 사용</span>
+                  <strong id="rc-loanwords">5 회</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>습관적 한자어 사용</span>
+                  <strong id="rc-sino">4 회</strong>
+                </div>
+                <div class="receipt-row">
+                  <span>살아남은 고유어 표현</span>
+                  <strong id="rc-native">1 회</strong>
+                </div>
+                <div class="receipt-row total-row">
+                  <span>대화방 남은 색채 농도</span>
+                  <strong id="rc-saturation">12%</strong>
+                </div>
+              </div>
+
+              <div class="receipt-divider">----------------------------------------</div>
+
+              <div class="receipt-detected-section">
+                <p class="detected-title">[영수증 내역: 그림자를 드리운 단어들]</p>
+                <div id="receipt-word-tags" class="receipt-word-tags">
+                  <!-- Word chips injected dynamically -->
+                </div>
+              </div>
+
+              <p id="receipt-comment" class="receipt-comment">
+                "레전드, 매점 간식, 내일 모레, 완전..." 익숙해서 무심코 쓴 말들이 우리말 고유의 빛깔을 덮어버렸어요. 시간을 되돌려 고유어를 찾아볼까요?
+              </p>
+
+              <div class="receipt-barcode"></div>
+              <p class="receipt-barcode-num">8 802026 103012 9 · 출처: 하모쌤</p>
+
+              <button id="btn-enter-replay" class="rewind-cta-btn" type="button">
+                <span>⏪ 시간 되돌리기 (리플레이 모드)</span>
+              </button>
+              <div class="receipt-zigzag-bottom"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overlay 3: Word Replacement Card Drawer (In Replay Mode) -->
+        <div id="word-card-overlay" class="word-card-overlay">
+          <div class="word-card-sheet glass-modal">
+            <div class="sheet-handle"></div>
+            <div class="card-sheet-header">
+              <span class="sheet-badge" id="card-origin-type">외래어 / 한자어 다듬기</span>
+              <button id="btn-close-card" class="sheet-close-btn" type="button" aria-label="닫기">✕</button>
+            </div>
+
+            <div class="target-word-comparison">
+              <div class="before-word-box">
+                <span class="box-label">방금 쓴 표현</span>
+                <strong id="card-before-word" class="before-word-text">레전드 / 최고</strong>
+              </div>
+              <div class="arrow-anim">➜</div>
+              <div class="after-word-box">
+                <span class="box-label">바꿔 끼울 고유어</span>
+                <strong id="card-preview-word" class="after-word-text">?</strong>
+              </div>
+            </div>
+
+            <p class="card-context-sentence" id="card-context-sentence">
+              "오늘 급식 메뉴 <mark>레전드</mark>임ㅋㅋ"
+            </p>
+
+            <div class="native-cards-Label">✨ 알맞은 고유어 카드를 선택해 말풍선에 끼워 넣으세요!</div>
+            <div id="native-card-options" class="native-card-options">
+              <!-- Selectable Native Korean Hint Cards injected here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Overlay 4: Final Completion Celebration Modal -->
+        <div id="final-overlay" class="phone-overlay">
+          <div class="final-card glass-modal">
+            <div class="final-sparkle-badge">🌈 색채 100% 복원 성공!</div>
+            <h2 class="final-title">내 카톡방에<br /><span>우리말 봄빛이 돌아왔어요</span></h2>
+            <p class="final-subtitle">
+              무심코 쓰던 외래어·한자어·줄임말을 아름다운 고유어로 바꿔 끼워 대화방이 화사하게 되살아났습니다!
+            </p>
+
+            <div class="comparison-summary">
+              <div class="comp-col comp-before">
+                <span>진단 당시 생존율</span>
+                <strong id="final-before-rate">12%</strong>
+                <small>흑백 그림자 상태</small>
+              </div>
+              <div class="comp-arrow">➜</div>
+              <div class="comp-col comp-after">
+                <span>리플레이 후 생존율</span>
+                <strong id="final-after-rate">100%</strong>
+                <small>고유어 만개 상태</small>
+              </div>
+            </div>
+
+            <div class="learned-words-title">📚 오늘 되찾은 아름다운 고유어 카드</div>
+            <div id="final-learned-list" class="final-learned-list">
+              <!-- Summary of restored words -->
+            </div>
+
+            <div class="final-actions">
+              <button id="btn-review-chat" class="secondary-action-btn" type="button">
+                💬 되살아난 카톡방 보기
+              </button>
+              <button id="btn-restart-final" class="cta-glow-btn" type="button">
+                🔄 다른 말투로 다시 테스트하기
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Home Indicator Bar -->
+        <div class="ios-home-indicator"></div>
+      </div>
+    </main>
+  </div>
+
+  <footer class="global-credit-footer">
+    <span>출처: <strong>하모쌤</strong></span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
